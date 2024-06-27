@@ -1,49 +1,47 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 export const FoodBox = ({ food }) => {
   const [quantity, setQuantity] = useState(1);
   const [addedItems, setAddedItems] = useState([]);
 
   const handleQuantityChange = (event) => {
-    const value = parseInt(event.target.value); 
-    setQuantity(value);
+    const newQuantity = parseInt(event.target.value, 10);
+    setQuantity(newQuantity);
   };
 
-  const handleAddItemClick = () => {
+  const addItem = () => {
     const newItem = {
       name: food.name,
       quantity: quantity,
       totalCalories: quantity * food.cal,
     };
-  
-    let updatedItems = []; 
-    let itemExists = false;
-    for (let i = 0; i < addedItems.length; i++) {
-      if (addedItems[i].name === food.name) {
-        
-        addedItems[i].quantity += quantity;
-        addedItems[i].totalCalories += quantity * food.cal;
-        itemExists = true;
+
+    setAddedItems((prevItems) => {
+      const existingItem = prevItems.find((item) => item.name === food.name);
+      if (existingItem) {
+        return prevItems.map((item) =>
+          item.name === food.name
+            ? {
+                ...item,
+                quantity: item.quantity + quantity,
+                totalCalories: item.totalCalories + quantity * food.cal,
+              }
+            : item
+        );
+      } else {
+        return [...prevItems, newItem];
       }
-      updatedItems.push(addedItems[i]); 
-    }
-    if (!itemExists) {
-      updatedItems.push(newItem);
-    }
-    setAddedItems(updatedItems);
-    setQuantity(1); 
+    });
+
+    setQuantity(1);
   };
-    
-  const handleResetItemClick = (itemName) => {
-    const updatedItems = [];
-    
-    for (let i = 0; i < addedItems.length; i++) {
-      if (addedItems[i].name !== itemName) {
-        updatedItems.push(addedItems[i]);
-      }
-    }
-    setAddedItems(updatedItems);
+
+  const removeItem = (itemName) => {
+    setAddedItems((prevItems) =>
+      prevItems.filter((item) => item.name !== itemName)
+    );
   };
+
   return (
     <div className="box">
       <article className="media">
@@ -70,7 +68,7 @@ export const FoodBox = ({ food }) => {
               />
             </div>
             <div className="control">
-              <button className="button is-info" onClick={handleAddItemClick}>
+              <button className="button is-info" onClick={addItem}>
                 +
               </button>
             </div>
@@ -82,7 +80,7 @@ export const FoodBox = ({ food }) => {
               <p>{`${item.quantity} ${item.name} = ${item.totalCalories} calories`}</p>
               <button
                 className="button is-danger"
-                onClick={() => handleResetItemClick(item.name)}
+                onClick={() => removeItem(item.name)}
               >
                 Reset
               </button>

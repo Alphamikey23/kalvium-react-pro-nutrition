@@ -1,14 +1,13 @@
-
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 
 const Search = ({ onSearch }) => {
-  const [query, setQuery] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const handleChange = (event) => {
-    const value = event.target.value;
-    setQuery(value);
-    onSearch(value);
-  };
+  const handleInputChange = useCallback((event) => {
+    const newQuery = event.target.value;
+    setSearchTerm(newQuery);
+    onSearch(newQuery);
+  }, [onSearch]);
 
   return (
     <div className="field">
@@ -18,8 +17,8 @@ const Search = ({ onSearch }) => {
           className="input"
           type="text"
           placeholder="Search for a meal..."
-          value={query}
-          onChange={handleChange}
+          value={searchTerm}
+          onChange={handleInputChange}
         />
       </div>
     </div>
